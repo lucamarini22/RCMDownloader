@@ -3,7 +3,7 @@ import multiprocessing
 import os
 import subprocess
 import sys
-sys.path.append('/Users/zhaoyu/.snap/snap-python')
+sys.path.append(r'C:\Users\lucam\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
 
@@ -86,10 +86,9 @@ def upload_by_log(filepath='data/subset'):
 
 def sar_tc_sn():
 
-
+    # TODO: execute the code of this function once for each zip file, i.e. create a loop
     # load the Sentinel-1 image
-    product = ProductIO.readProduct('/Users/zhaoyu/PycharmProjects/eodms-cli/data/RCM1_OK2388975_PK2567859_1_SC30MCPA_20230523_011049_CH_CV_MLC.zip')
-
+    product = ProductIO.readProduct(r'C:\Users\lucam\OneDrive\Documenti\WFD-KTH\RCMDownloader\downloads\RCM2_OK2388975_PK2596232_1_SC30MCPB_20230609_143010_CH_CV_MLC.zip') #'/Users/zhaoyu/PycharmProjects/eodms-cli/data/RCM1_OK2388975_PK2567859_1_SC30MCPA_20230523_011049_CH_CV_MLC.zip')
     # create a HashMap to hold the parameters for the speckle filter
     speckle_parameters = HashMap()
     speckle_parameters.put('filter', 'Lee')
@@ -119,7 +118,7 @@ def sar_tc_sn():
     speckle_filtered = GPF.createProduct('Speckle-Filter', speckle_parameters, terrain_corrected)
 
     # write the terrain-corrected image to a file
-    ProductIO.writeProduct(speckle_filtered, 'output.tif', 'GeoTIFF-BigTIFF')
+    ProductIO.writeProduct(speckle_filtered, 'output.tif', 'GeoTIFF-BigTIFF') # TODO: change name of how it will be saved when you'll have the for loop
 
     print('finish')
 
