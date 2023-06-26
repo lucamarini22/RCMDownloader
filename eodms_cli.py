@@ -51,6 +51,10 @@ from Prompter import Prompter
 from scripts import config_util
 from scripts import utils as eod_util
 
+from utils import get_free_space_gb
+from constants import MIN_FREE_SPACE_GB_DOWNLOAD
+
+
 proc_choices = {'full': {
                     'name': 'Search, order and/or download',
                     'desc': 'Search, order and/or download images using an AOI '
@@ -401,4 +405,11 @@ def cli(username, password, input_val, collections, process, filters, dates,
 
 
 if __name__ == '__main__':
+    download_folder = './downloads'
+    # Assertion of existence of folder
+    assert os.path.isdir(download_folder)
+    # Assertion of having enough free space for download
+    free_space_gb_download = get_free_space_gb(download_folder)
+    if free_space_gb_download < MIN_FREE_SPACE_GB_DOWNLOAD:
+        raise Exception(f'The device is running out of space. There are less than {MIN_FREE_SPACE_GB_DOWNLOAD} free GB in the folder "{download_folder}".')
     sys.exit(cli())

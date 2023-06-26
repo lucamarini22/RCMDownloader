@@ -6,8 +6,6 @@ import sys
 sys.path.append(r'C:\Users\lucamar\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
-from utils import get_free_space_gb
-from constants import MIN_FREE_SPACE_GB_DOWNLOAD
 
 
 def upload_to_gcloud(file):
@@ -87,64 +85,64 @@ def upload_by_log(filepath='data/subset'):
             upload(tif_file)
 
 def sar_tc_sn(
-    folder_zips_path: str, 
+    zip_path: str, 
     output_folder: str, 
-    zip_ext: str = ".zip", 
     out_ext: str = ".tif"
 ):
-    assert os.path.isdir(folder_zips_path)
-    assert os.path.isdir(output_folder)
     # load the Sentinel-1 image
-    zip_paths = glob.glob(
-        os.path.join(folder_zips_path, "*" + zip_ext)
-    )
-    idx_img = 0
-    for path_zip in zip_paths:
-        product = ProductIO.readProduct(path_zip)
-        # create a HashMap to hold the parameters for the speckle filter
-        speckle_parameters = HashMap()
-        speckle_parameters.put('filter', 'Lee')
-        speckle_parameters.put('filterSizeX', 3)
-        speckle_parameters.put('filterSizeY', 3)
-        speckle_parameters.put('dampingFactor', 2)
-        speckle_parameters.put('windowSize', '7x7')
-        speckle_parameters.put('estimateENL', 'true')
-        speckle_parameters.put('enl', 1.0)
-        speckle_parameters.put('numLooksStr', '1')
-        speckle_parameters.put('targetWindowSizeStr', '3x3')
-        speckle_parameters.put('sigmaStr', '0.9')
-        speckle_parameters.put('anSize', '50')
+    product = ProductIO.readProduct(zip_path)
+    # create a HashMap to hold the parameters for the speckle filter
+    speckle_parameters = HashMap()
+    speckle_parameters.put('filter', 'Lee')
+    speckle_parameters.put('filterSizeX', 3)
+    speckle_parameters.put('filterSizeY', 3)
+    speckle_parameters.put('dampingFactor', 2)
+    speckle_parameters.put('windowSize', '7x7')
+    speckle_parameters.put('estimateENL', 'true')
+    speckle_parameters.put('enl', 1.0)
+    speckle_parameters.put('numLooksStr', '1')
+    speckle_parameters.put('targetWindowSizeStr', '3x3')
+    speckle_parameters.put('sigmaStr', '0.9')
+    speckle_parameters.put('anSize', '50')
 
-        # create a HashMap to hold the parameters for the terrain correction
-        terrain_parameters = HashMap()
-        terrain_parameters.put('demName', 'SRTM 3Sec')
-        terrain_parameters.put('pixelSpacingInMeter', 30.0)
-        terrain_parameters.put('demResamplingMethod', 'BILINEAR_INTERPOLATION')
-        terrain_parameters.put('imgResamplingMethod', 'BILINEAR_INTERPOLATION')
-        terrain_parameters.put('mapProjection', 'WGS84(DD)')
+    # create a HashMap to hold the parameters for the terrain correction
+    terrain_parameters = HashMap()
+    terrain_parameters.put('demName', 'SRTM 3Sec')
+    terrain_parameters.put('pixelSpacingInMeter', 30.0)
+    terrain_parameters.put('demResamplingMethod', 'BILINEAR_INTERPOLATION')
+    terrain_parameters.put('imgResamplingMethod', 'BILINEAR_INTERPOLATION')
+    terrain_parameters.put('mapProjection', 'WGS84(DD)')
 
-        # apply the terrain correction
-        terrain_corrected = GPF.createProduct('Terrain-Correction', terrain_parameters, product)
+    # apply the terrain correction
+    terrain_corrected = GPF.createProduct('Terrain-Correction', terrain_parameters, product)
 
-        # apply the speckle filter
-        speckle_filtered = GPF.createProduct('Speckle-Filter', speckle_parameters, terrain_corrected)
+    # apply the speckle filter
+    speckle_filtered = GPF.createProduct('Speckle-Filter', speckle_parameters, terrain_corrected)
 
-        # write the terrain-corrected image to a file
-        ProductIO.writeProduct(
-            speckle_filtered, 
-            os.path.join(output_folder, str(idx_img) + out_ext), 'GeoTIFF') #-BigTIFF')
-        idx_img += 1
+    # write the terrain-corrected image to a file
+    ProductIO.writeProduct(
+        speckle_filtered, 
+        os.path.join(output_folder, str(idx_img) + out_ext), 'GeoTIFF') #-BigTIFF')
+    idx_img += 1
     print('finish')
 
 
 if __name__=='__main__':
+    # Folders paths
     folder_zips_path = r'C:\Users\lucamar\RCMDownloader\downloads'
     output_folder = './tif_images'
-    #statvfs = os.statvfs('./tif_images')
-    download_folder = './downloads'
-    free_space_gb_download = get_free_space_gb(download_folder)
-    if free_space_gb_download < MIN_FREE_SPACE_GB_DOWNLOAD:
-        raise Exception(f'The device is running out of space. There are less than {MIN_FREE_SPACE_GB_DOWNLOAD} free GB.')
-    sar_tc_sn(folder_zips_path, output_folder)
-    # upload_in_parallel(True, 'data/*/imagery')
-    # upload_by_log()
+    # Assertion of existence of folders
+    assert os.path.isdir(folder_zips_path)
+    assert os.path.isdir(output_folder)
+    # Constants
+    zip_ext = ".zip"
+
+    zip_paths = glob.glob(
+        os.path.join(folder_zips_path, "*" + zip_ext)
+    )
+    idx_img = 0
+    for zip_path in zip_paths:
+    
+        sar_tc_sn(zip_path, output_folder)
+        # upload_in_parallel(True, 'data/*/imagery')
+        # upload_by_log()
