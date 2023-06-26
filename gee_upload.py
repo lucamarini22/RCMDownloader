@@ -6,6 +6,10 @@ import sys
 sys.path.append(r'C:\Users\lucamar\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
+import time
+
+OUTPUT_FOLDER = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial'#'./tif_images'
+OUT_EXT = '.tif'
 
 
 def upload_to_gcloud(file):
@@ -86,9 +90,10 @@ def upload_by_log(filepath='data/subset'):
 
 def sar_tc_sn(
     zip_path: str, 
-    output_folder: str, 
-    out_ext: str = ".tif"
+    output_folder: str = OUTPUT_FOLDER, 
+    out_ext: str = ".tif",
 ):
+    name_zip = os.path.normpath(zip_path).split(os.path.sep)[-1]
     # load the Sentinel-1 image
     product = ProductIO.readProduct(zip_path)
     # create a HashMap to hold the parameters for the speckle filter
@@ -122,27 +127,33 @@ def sar_tc_sn(
     # write the terrain-corrected image to a file
     ProductIO.writeProduct(
         speckle_filtered, 
-        os.path.join(output_folder, str(idx_img) + out_ext), 'GeoTIFF') #-BigTIFF')
-    idx_img += 1
+        os.path.join(output_folder, name_zip + out_ext), 'GeoTIFF') #-BigTIFF')
     print('finish')
 
 
 if __name__=='__main__':
+    start = time.time()
     # Folders paths
-    folder_zips_path = r'C:\Users\lucamar\RCMDownloader\downloads'
-    output_folder = './tif_images'
+    folder_zips_path = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial'#'./downloads'
     # Assertion of existence of folders
     assert os.path.isdir(folder_zips_path)
-    assert os.path.isdir(output_folder)
+    assert os.path.isdir(OUTPUT_FOLDER)
     # Constants
     zip_ext = ".zip"
+    num_processes = 16
 
     zip_paths = glob.glob(
         os.path.join(folder_zips_path, "*" + zip_ext)
     )
-    idx_img = 0
-    for zip_path in zip_paths:
+
+    with multiprocessing.Pool(processes=num_processes) as pool:
+        list(pool.imap_unordered(sar_tc_sn, zip_paths))
     
-        sar_tc_sn(zip_path, output_folder)
+    end = time.time()
+    print(end - start)
+
+    #for zip_path in zip_paths:
+        
+        # sar_tc_sn(zip_path)
         # upload_in_parallel(True, 'data/*/imagery')
         # upload_by_log()
