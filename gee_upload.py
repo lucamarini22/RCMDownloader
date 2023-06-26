@@ -3,9 +3,11 @@ import multiprocessing
 import os
 import subprocess
 import sys
-sys.path.append(r'C:\Users\lucam\.snap\snap-python')
+sys.path.append(r'C:\Users\lucamar\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
+from utils import get_free_space_gb
+from constants import MIN_FREE_SPACE_GB_DOWNLOAD
 
 
 def upload_to_gcloud(file):
@@ -134,9 +136,15 @@ def sar_tc_sn(
         idx_img += 1
     print('finish')
 
+
 if __name__=='__main__':
-    folder_zips_path = r'C:\Users\lucam\OneDrive\Documenti\WFD-KTH\RCMDownloader\downloads'
+    folder_zips_path = r'C:\Users\lucamar\RCMDownloader\downloads'
     output_folder = './tif_images'
+    #statvfs = os.statvfs('./tif_images')
+    download_folder = './downloads'
+    free_space_gb_download = get_free_space_gb(download_folder)
+    if free_space_gb_download < MIN_FREE_SPACE_GB_DOWNLOAD:
+        raise Exception(f'The device is running out of space. There are less than {MIN_FREE_SPACE_GB_DOWNLOAD} free GB.')
     sar_tc_sn(folder_zips_path, output_folder)
     # upload_in_parallel(True, 'data/*/imagery')
     # upload_by_log()
