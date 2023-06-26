@@ -7,9 +7,11 @@ sys.path.append(r'C:\Users\lucamar\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
 
-
-OUTPUT_FOLDER = './tif_images'
+# Constants
+ZIP_EXT = ".zip"
+OUTPUT_FOLDER = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial' #'./tif_images'
 OUT_EXT = '.tif'
+MULTIPROCESSING = True
 
 def upload_to_gcloud(file):
     print('Upload to gcloud')
@@ -92,7 +94,7 @@ def sar_tc_sn(
     output_folder: str = OUTPUT_FOLDER, 
     out_ext: str = ".tif",
 ):
-    name_zip = os.path.normpath(zip_path).split(os.path.sep)[-1]
+    name_zip = os.path.normpath(zip_path).replace(ZIP_EXT, '').split(os.path.sep)[-1]
     # load the Sentinel-1 image
     product = ProductIO.readProduct(zip_path)
     # create a HashMap to hold the parameters for the speckle filter
@@ -123,36 +125,34 @@ def sar_tc_sn(
     # apply the speckle filter
     speckle_filtered = GPF.createProduct('Speckle-Filter', speckle_parameters, terrain_corrected)
 
+    out_file_name = os.path.join(output_folder, name_zip + out_ext)
     # write the terrain-corrected image to a file
     ProductIO.writeProduct(
         speckle_filtered, 
-        os.path.join(output_folder, name_zip + out_ext), 'GeoTIFF') #-BigTIFF')
-    print('finish')
+        out_file_name, 
+        'GeoTIFF'
+    ) #-BigTIFF')
+    print(f'Created file: {out_file_name}.')
 
 
 if __name__=='__main__':
     # Folders paths
-    folder_zips_path = './downloads'
+    folder_zips_path = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial' #'./downloads'
     # Assertion of existence of folders
     assert os.path.isdir(folder_zips_path)
     assert os.path.isdir(OUTPUT_FOLDER)
-    # Constants
-    zip_ext = ".zip"
-    num_processes = 16
+    
+    num_processes = os.cpu_count()
 
     zip_paths = glob.glob(
-        os.path.join(folder_zips_path, "*" + zip_ext)
+        os.path.join(folder_zips_path, "*" + ZIP_EXT)
     )
 
-    #tasks = []
-    #for zip_path in zip_paths:
-    #    tasks.append((zip_path, OUTPUT_FOLDER, OUT_EXT))
-    #print(tasks)
-    with multiprocessing.Pool(processes=num_processes) as pool:
-        list(pool.imap_unordered(sar_tc_sn, zip_paths))
-
-    #for zip_path in zip_paths:
-        
-        # sar_tc_sn(zip_path)
-        # upload_in_parallel(True, 'data/*/imagery')
-        # upload_by_log()
+    if MULTIPROCESSING:
+        with multiprocessing.Pool(processes=num_processes) as pool:
+            list(pool.imap_unordered(sar_tc_sn, zip_paths))
+    else:
+        for zip_path in zip_paths:
+            sar_tc_sn(zip_path)
+            # upload_in_parallel(True, 'data/*/imagery')
+            # upload_by_log()
