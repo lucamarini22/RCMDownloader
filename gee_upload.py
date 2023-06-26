@@ -6,11 +6,10 @@ import sys
 sys.path.append(r'C:\Users\lucamar\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
-import time
 
-OUTPUT_FOLDER = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial'#'./tif_images'
+
+OUTPUT_FOLDER = './tif_images'
 OUT_EXT = '.tif'
-
 
 def upload_to_gcloud(file):
     print('Upload to gcloud')
@@ -132,9 +131,8 @@ def sar_tc_sn(
 
 
 if __name__=='__main__':
-    start = time.time()
     # Folders paths
-    folder_zips_path = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial'#'./downloads'
+    folder_zips_path = './downloads'
     # Assertion of existence of folders
     assert os.path.isdir(folder_zips_path)
     assert os.path.isdir(OUTPUT_FOLDER)
@@ -146,11 +144,12 @@ if __name__=='__main__':
         os.path.join(folder_zips_path, "*" + zip_ext)
     )
 
+    #tasks = []
+    #for zip_path in zip_paths:
+    #    tasks.append((zip_path, OUTPUT_FOLDER, OUT_EXT))
+    #print(tasks)
     with multiprocessing.Pool(processes=num_processes) as pool:
         list(pool.imap_unordered(sar_tc_sn, zip_paths))
-    
-    end = time.time()
-    print(end - start)
 
     #for zip_path in zip_paths:
         
