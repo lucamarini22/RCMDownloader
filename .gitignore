@@ -61,4 +61,7 @@ _copyright_check.txt
 v3_ideas.md
 data
 
-output.tif
+*.tif
+*.kml
+*.shp
+*.db
