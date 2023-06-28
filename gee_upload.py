@@ -1,15 +1,17 @@
 import glob
 import multiprocessing
 import os
+import argparse
 import subprocess
 import sys
 sys.path.append(r'C:\Users\lucamar\.snap\snap-python')
 from osgeo import gdal
 from snappy import ProductIO, HashMap, GPF
+from loguru import logger
 
 # Constants
 ZIP_EXT = ".zip"
-OUTPUT_FOLDER = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial' #'./tif_images'
+OUTPUT_FOLDER = './tif_images_donnie_creek' #r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial'
 OUT_EXT = '.tif'
 MULTIPROCESSING = True
 
@@ -136,23 +138,53 @@ def sar_tc_sn(
 
 
 if __name__=='__main__':
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--folder_zips_path", 
+        help="Path of the folder containing the zip (containing images) downloaded from rcm.", 
+        default='./downloads' #r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial'
+    )
+    parser.add_argument(
+        "--multiprocessing",
+        default=True,
+        type=bool,
+        help="True to process the images via multiprocessing. False to process the images one by one.",
+    )
+    parser.add_argument(
+        "--num_processes",
+        default=4, #os.cpu_count(),
+        type=int,
+        help="Number of worker processes to use.",
+    )
+    parser.add_argument(
+        "--log_folder", 
+        help="Path of the folder containing the logs.", 
+        default='./log'
+    )
+
+    args = parser.parse_args()
+    options = vars(args)
+
     # Folders paths
-    folder_zips_path = r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial' #'./downloads'
+    folder_zips_path = options['folder_zips_path']
     # Assertion of existence of folders
     assert os.path.isdir(folder_zips_path)
     assert os.path.isdir(OUTPUT_FOLDER)
+    # Initialize logger
+    logger.add(os.path.join(f"{options['log_folder']}", "processing_snap.log"))
     
-    num_processes = os.cpu_count()
-
     zip_paths = glob.glob(
         os.path.join(folder_zips_path, "*" + ZIP_EXT)
     )
 
-    if MULTIPROCESSING:
-        with multiprocessing.Pool(processes=num_processes) as pool:
+    if options['multiprocessing']:
+        with multiprocessing.Pool(processes=options['num_processes']) as pool:
             list(pool.imap_unordered(sar_tc_sn, zip_paths))
     else:
         for zip_path in zip_paths:
             sar_tc_sn(zip_path)
             # upload_in_parallel(True, 'data/*/imagery')
             # upload_by_log()
+
+    logger.info('Finish')
