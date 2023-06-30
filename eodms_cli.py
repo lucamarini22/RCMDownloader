@@ -405,11 +405,9 @@ def cli(username, password, input_val, collections, process, filters, dates,
 
 
 if __name__ == '__main__':
-    download_folder = './downloads'
-    # Assertion of existence of folder
-    assert os.path.isdir(download_folder)
+    repo_folder = './'
     # Assertion of having enough free space for download
-    free_space_gb_download = get_free_space_gb(download_folder)
+    free_space_gb_download = get_free_space_gb(repo_folder)
     if free_space_gb_download < MIN_FREE_SPACE_GB_DOWNLOAD:
-        raise Exception(f'The device is running out of space. There are less than {MIN_FREE_SPACE_GB_DOWNLOAD} free GB in the folder "{download_folder}".')
+        raise Exception(f'The device is running out of space. There are less than {MIN_FREE_SPACE_GB_DOWNLOAD} free GB in the folder "{repo_folder}".')
     sys.exit(cli())
