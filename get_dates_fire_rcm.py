@@ -1,7 +1,30 @@
 import os
+from typing import Tuple, List
 import glob
 
-def get_dates_fire_rcm(fire_folder: str, ext: str = ".tif" ,sep: str = "_"):
+def get_dates_fire_rcm(
+    fire_folder: str, 
+    ext: str = ".tif",
+    sep: str = "_"
+) -> Tuple[List[str], List[str]]:
+    """Given a folder containing images downloaded from RCM and processed with 
+    SNAP, it gets the unique dates of acquisition of the images, both in 
+    general and also related to each satellite. 
+
+    Args:
+        fire_folder (str): folder containing images downloaded from RCM and 
+          processed with SNAP.
+        ext (str, optional): extension of processed images. Defaults to ".tif".
+        sep (str, optional): separator. Defaults to "_".
+
+    Returns:
+        Tuple[List[str], List[str]]: list of unique dates of acquisition of the
+          images without specifying which satellite acquired the image, and 
+          list of unique dates of acquisition of the images with corresponding 
+          satellite that acquired the image.
+          
+    """
+    assert os.path.isdir(fire_folder)
     fire_imgs_paths = glob.glob(
         os.path.join(fire_folder, "*" + ext)
     )
@@ -26,6 +49,6 @@ def get_dates_fire_rcm(fire_folder: str, ext: str = ".tif" ,sep: str = "_"):
 
 if __name__ == "__main__":
     unique_dates_fire, unique_dates_fire_per_satellite = \
-        get_dates_fire_rcm('./tif_images_donnie_creef_20230622_20230703_not_convex_polygon')
+        get_dates_fire_rcm('./tif_images_donnie_creef_20230622_20230710_not_convex_polygon')
     print(unique_dates_fire)
     print(unique_dates_fire_per_satellite)
