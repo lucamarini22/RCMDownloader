@@ -35,7 +35,12 @@ The eodms_cli.py was designed using **Python 3.7** however it has been tested su
 	```sh
 	git clone https://github.com/lucamarini22/RCMDownloader.git
 	```
-3. Setup and activate the environment. This will create a conda environment called `rcm-snap`.
+3. Checkout to branch `download-multiple-images`
+   ```sh
+   git checkout download-multiple-images
+   ```
+
+4. Setup and activate the environment. This will create a conda environment called `rcm-snap`.
    ```sh
    conda create -n rcm-snap python=3.6
    ```
@@ -43,7 +48,7 @@ The eodms_cli.py was designed using **Python 3.7** however it has been tested su
    conda activate rcm-snap
    ```
 
-4. Install required packages (GDAL not included):
+5. Install required packages (GDAL not included):
 
 	```sh
 	cd RCMDownloader
