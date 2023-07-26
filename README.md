@@ -28,34 +28,54 @@ The eodms_cli.py was designed using **Python 3.7** however it has been tested su
 
 ## Setup
 
-1. Clone the repository:
-	
-	```dos
-	> git clone https://github.com/eodms-sgdot/eodms-cli.git
-	```
-	
-2. Install required packages (GDAL not included):
+1. Get [miniforge](https://github.com/conda-forge/miniforge), or [Miniconda](https://docs.conda.io/en/latest/miniconda.html), or similar. miniforge is preferred to Miniconda for its greater speed in creating the virtual environment.
 
-	```dos
-	> cd eodms-cli
-	> pip install -r requirements.txt
+2. Clone the repository:
+	
+	```sh
+	git clone https://github.com/lucamarini22/RCMDownloader.git
+	```
+3. Setup and activate the environment. This will create a conda environment called `rcm-snap`.
+   ```sh
+   conda create -n rcm-snap python=3.6
+   ```
+   ```sh
+   conda activate rcm-snap
+   ```
+
+4. Install required packages (GDAL not included):
+
+	```sh
+	cd RCMDownloader
+	pip install -r requirements.txt
 	```
 	
-3. Either
+## Download images from RCM
+
+Either
 
 - run the batch file and enter values when prompted:
 	
-	```dos
-	> eodms_cli.bat
+	```sh
+	eodms_cli.bat
 	```
 	
 - run the script using Python
 
 	```bash
-	> python eodms_cli.py
+	python eodms_cli.py
 	```
 	
 NOTE: Depending on your installation of Python, you may have to run ```python3 eodms_cli.py```.
+
+## Process images with SNAP
+
+- Download [ESA SNAP](https://step.esa.int/main/download/snap-download/).
+- Install snappy by following the instructions in this repository [esa-snappy](https://github.com/senbox-org/esa-snappy).
+- Process images with SNAP (make sure to change the variable `OUTPUT_FOLDER`):
+	```sh
+	python gee_upload.py --folder_zips_path <folder_containing_downloaded_zips_from_rcm>
+	```
 	
 ## Configuration
 
