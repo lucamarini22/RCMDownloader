@@ -11,7 +11,7 @@ from loguru import logger
 
 # Constants
 ZIP_EXT = ".zip"
-OUTPUT_FOLDER = './tif_images_donnie_creek' #r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial'
+OUTPUT_FOLDER = './tif_images_donnie_creek_20230513_20230726_rectangle_polygon' #r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\tif_images_trial'
 OUT_EXT = '.tif'
 MULTIPROCESSING = True
 
@@ -126,6 +126,7 @@ def sar_tc_sn(
 
     # apply the speckle filter
     speckle_filtered = GPF.createProduct('Speckle-Filter', speckle_parameters, terrain_corrected)
+    # TODO: add geometric correction
 
     out_file_name = os.path.join(output_folder, name_zip + out_ext)
     # write the terrain-corrected image to a file
@@ -143,7 +144,7 @@ if __name__=='__main__':
     parser.add_argument(
         "--folder_zips_path", 
         help="Path of the folder containing the zip (containing images) downloaded from rcm.", 
-        default='./downloads' #r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial'
+        default='./downloads_donnie_creek_20230513_20230726_rectangle_polygon' #r'\\ug.kth.se\dfs\home\l\u\lucamar\appdata\xp.V2\Desktop\trial'
     )
     parser.add_argument(
         "--multiprocessing",
