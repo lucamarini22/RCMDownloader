@@ -54,7 +54,12 @@ The eodms_cli.py was designed using **Python 3.7** however it has been tested su
 	cd RCMDownloader
 	pip install -r requirements.txt
 	```
+6. (On Windows) Download and Install GDAL: 
+	- download `GDAL-3.1.4-cp36-cp36m-win_amd64.whl` wheel file of GDAL from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal)
 	
+	```sh
+	pip install GDAL-2.2.4-cp36-cp36m-win_amd64.whl
+	```	
 ## Download images from RCM
 
 Either
